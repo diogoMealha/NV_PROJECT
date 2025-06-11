@@ -1,27 +1,40 @@
-import time
-import cv2
-import numpy as np
-from thorcam import camera
+# import time
+#import cv2
+# import numpy as np
+# from thorcam import camera
 
+# camera.ThorCamClient.thor_bin_path = r"C:\Program Files\Thorlabs\Scientific Imaging\ThorCam"
 
 from thorcam.camera import ThorCam
-class MyThorCam(ThorCam):
-    def received_camera_response(self, msg, value):
-        super(MyThorCam, self).received_camera_response(msg, value)
-        if msg == 'image':
-            return
-        print('Received "{}" with value "{}"'.format(msg, value))
-    def got_image(self, image, count, queued_count, t):
-        print('Received image "{}" with time "{}" and counts "{}", "{}"'
-              .format(image, t, count, queued_count))
+from thorcam.camera import ThorCamClient
+
+
+# class MyThorCam(ThorCam):
+#     def received_camera_response(self, msg, value):
+#         super(MyThorCam, self).received_camera_response(msg, value)
+#         if msg == 'image':
+#             return
+#         print('Received "{}" with value "{}"'.format(msg, value))
+#     def got_image(self, image, count, queued_count, t):
+#         print('Received image "{}" with time "{}" and counts "{}", "{}"'
+#               .format(image, t, count, queued_count))
+
+
 
 
 
 
 
 def main():
-    cam = MyThorCam()
-    print(cam)
+    ThorCamClient.thor_bin_path=r"C:\Program Files\Thorlabs\Scientific Imaging\ThorCam"
+
+    cam = ThorCam()
+    cam.start_cam_process()
+    cam.refresh_cameras()
+    # print(cam.received_camera_response(msg, value))
+    
+    
+    #print(cam.refresh_cameras())
 # def main():
 #     # Connect to the first available camera
 #     cam = camera.ThorlabsCamera()
