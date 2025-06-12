@@ -26,6 +26,7 @@ from thorcam.camera import ThorCamClient
 
 
 def main():
+    
     ThorCamClient.thor_bin_path=r"C:\Program Files\Thorlabs\Scientific Imaging\ThorCam"
 
     cam = ThorCam()
