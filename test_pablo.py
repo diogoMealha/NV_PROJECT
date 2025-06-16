@@ -2,6 +2,7 @@ import pickle
 from ffpyplayer.pic import Image as FFPImage
 import numpy as np
 import matplotlib.pyplot as plt
+import csv
 
 
 def load_frame_from_pickle(path: str) -> 'ffpyplayer.pic.Image':
@@ -24,7 +25,7 @@ img2 = load_frame_from_pickle('obj2.bn')
 
 
 pix_fmt = img2.get_pixel_format()
-print(pix_fmt)
+#print(pix_fmt)
 
 # get raw bytes and dimensions
 buf = img2.to_bytearray()[0]
@@ -38,3 +39,20 @@ arr = data.reshape((height, width))
 plt.imshow(arr, cmap='gray', vmin=arr.min(), vmax=arr.max())
 plt.axis('off')
 plt.show()
+
+
+pixfmt    = img2.get_pixel_format()  # e.g. 'gray16le'
+
+if False:
+    with open('snapshot.csv', 'w', newline='') as f:
+        writer = csv.writer(f)
+
+        # 1st three lines: metadata
+        writer.writerow(['pixelformat', pixfmt])
+        writer.writerow(['timestamp',    "2023-10-01T12:00:00Z"])  # example timestamp
+        writer.writerow(['time_base',    "timebase_example"])  # example timebase
+
+        # now write the pixel values
+        # each row of the image becomes one CSV row
+        for row in arr:
+            writer.writerow(row.tolist())
