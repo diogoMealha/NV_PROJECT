@@ -19,7 +19,7 @@ def image_to_bytes(image):
     data = np.frombuffer(buf, dtype='<u2')   # uint16 little‐endian
     arr = data.reshape((height, width))
 
-    NOISE_INTENITY = 0.2 * np.max(arr)  # 20% of max value
+    NOISE_INTENITY = 0.7 * np.max(arr)  # 20% of max value
     noise  = np.random.randint(-NOISE_INTENITY, NOISE_INTENITY, size=arr.shape)
     noisy_data = arr + noise
     return noisy_data 
