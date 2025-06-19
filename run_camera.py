@@ -9,7 +9,8 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import queue
 
-CAM_IMG_SIZE = (2448, 2048)  # CS505MU1
+CAM_IMG_SIZE = (2448, 2048)  # 
+
 
 class MyThorCam(ThorCam):
     def received_camera_response(self, msg, value):
@@ -20,7 +21,14 @@ class MyThorCam(ThorCam):
     def got_image(self, image, count, queued_count, t):
         image_data = image_to_bytes(image)
         image_queue.put(image_data)
-
+        
+        if count > 500:
+            exit()
+            
+        if count == 10:
+            np.savez("images/with_mag.npz", image_data)
+            exit()
+        
 
 image_queue = queue.Queue()
 
@@ -38,14 +46,18 @@ def update_plot(*args):
             
             original_image.set_clim(vmin=np.min(image_data), vmax=np.max(image_data))
             original_image.set_data(image_data)
-
-            image_transformed = ff.apply_transformations(image_data)
+            
+            # image_transformed = ff.apply_transformations(image_data)
+            image_transformed = MAG_COMP
             filtered_image.set_clim(vmin=np.min(image_transformed), vmax=np.max(image_transformed))
             filtered_image.set_data(image_transformed)
 
             print("updating plot")
             fig.canvas.draw_idle()
             fig.canvas.flush_events()
+            
+            # save 
+            
 
     except queue.Empty:
         pass
@@ -54,13 +66,19 @@ def update_plot(*args):
     return True
 
 def main():
-    global original_image, filtered_image, fig
+    global original_image, filtered_image, fig, MAG_COMP, MAG_BASELINE
+    
+    
     fig, ax = plt.subplots(1, 2, figsize=(12, 6))
     data = np.zeros(CAM_IMG_SIZE)
+    
+    MAG_COMP = np.zeros(CAM_IMG_SIZE)
+    MAG_BASELINE = np.zeros(CAM_IMG_SIZE)
+    
     original_image = ax[0].imshow(data, cmap='gray')  # Assuming 16-bit grayscale
     ax[0].set_title("Original Image")
     ax[0].axis('off')
-    filtered_image = ax[1].imshow(data, cmap='gray')
+    filtered_image = ax[1].imshow(MAG_COMP, cmap='gray')
     ax[1].set_title("After Filters")
     ax[1].axis('off')
     plt.ion()  # Interactive mode ON
@@ -73,11 +91,18 @@ def main():
     
     cam.open_camera("29035")
     
+    cam.set_setting('exposure_ms', 100)
+    cam.set_setting('trigger_type', 'SW Trigger')
+    cam.set_setting('trigger_count', 2000)
+
+    
     # print(cam.exposure_range)
     
     cam.play_camera()
-
-    timer = fig.canvas.new_timer(interval=100)
+    
+    
+    print("start timer")
+    timer = fig.canvas.new_timer(interval=50)
     timer.add_callback(update_plot)
     timer.start()
 
